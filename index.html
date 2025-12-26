@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Binary Search Comparison</title>
+    <title>Binary Search Web App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -97,14 +97,21 @@
         const target = parseInt(document.getElementById("target").value);
         const arr = generateArray(n);
 
+        const repeat = 10000;
+        let index;
+
         const start = performance.now();
-        const index = binarySearchIterative(arr, target);
+        for (let i = 0; i < repeat; i++) {
+            index = binarySearchIterative(arr, target);
+        }
         const end = performance.now();
+
+        const avgTime = (end - start) / repeat;
 
         document.getElementById("output").innerHTML =
             `<b>Binary Search Iteratif</b><br>
              Index ditemukan: ${index}<br>
-             Waktu eksekusi: ${(end - start).toFixed(4)} ms`;
+             Waktu eksekusi rata-rata: ${avgTime.toFixed(6)} ms`;
     }
 
     function runRecursive() {
@@ -112,14 +119,21 @@
         const target = parseInt(document.getElementById("target").value);
         const arr = generateArray(n);
 
+        const repeat = 10000;
+        let index;
+
         const start = performance.now();
-        const index = binarySearchRecursive(arr, target, 0, arr.length - 1);
+        for (let i = 0; i < repeat; i++) {
+            index = binarySearchRecursive(arr, target, 0, arr.length - 1);
+        }
         const end = performance.now();
+
+        const avgTime = (end - start) / repeat;
 
         document.getElementById("output").innerHTML =
             `<b>Binary Search Rekursif</b><br>
              Index ditemukan: ${index}<br>
-             Waktu eksekusi: ${(end - start).toFixed(4)} ms`;
+             Waktu eksekusi rata-rata: ${avgTime.toFixed(6)} ms`;
     }
 </script>
 
