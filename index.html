@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Binary Search Comparison</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+        .container {
+            width: 420px;
+            margin: 60px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-top: 12px;
+        }
+        input {
+            width: 100%;
+            padding: 6px;
+            margin-top: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            background: #eef2f3;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Binary Search Web App</h2>
+
+    <label>Ukuran Dataset (n)</label>
+    <input type="number" id="size" value="1000000">
+
+    <label>Nilai yang Dicari</label>
+    <input type="number" id="target" value="500000">
+
+    <button onclick="runIterative()">Jalankan Binary Search Iteratif</button>
+    <button onclick="runRecursive()">Jalankan Binary Search Rekursif</button>
+
+    <div class="result" id="output"></div>
+</div>
+
+<script>
+    function generateArray(n) {
+        let arr = [];
+        for (let i = 1; i <= n; i++) {
+            arr.push(i);
+        }
+        return arr;
+    }
+
+    function binarySearchIterative(arr, target) {
+        let left = 0;
+        let right = arr.length - 1;
+
+        while (left <= right) {
+            let mid = Math.floor((left + right) / 2);
+            if (arr[mid] === target) return mid;
+            else if (arr[mid] < target) left = mid + 1;
+            else right = mid - 1;
+        }
+        return -1;
+    }
+
+    function binarySearchRecursive(arr, target, left, right) {
+        if (left > right) return -1;
+
+        let mid = Math.floor((left + right) / 2);
+        if (arr[mid] === target) return mid;
+        else if (arr[mid] < target)
+            return binarySearchRecursive(arr, target, mid + 1, right);
+        else
+            return binarySearchRecursive(arr, target, left, mid - 1);
+    }
+
+    function runIterative() {
+        const n = parseInt(document.getElementById("size").value);
+        const target = parseInt(document.getElementById("target").value);
+        const arr = generateArray(n);
+
+        const start = performance.now();
+        const index = binarySearchIterative(arr, target);
+        const end = performance.now();
+
+        document.getElementById("output").innerHTML =
+            `<b>Binary Search Iteratif</b><br>
+             Index ditemukan: ${index}<br>
+             Waktu eksekusi: ${(end - start).toFixed(4)} ms`;
+    }
+
+    function runRecursive() {
+        const n = parseInt(document.getElementById("size").value);
+        const target = parseInt(document.getElementById("target").value);
+        const arr = generateArray(n);
+
+        const start = performance.now();
+        const index = binarySearchRecursive(arr, target, 0, arr.length - 1);
+        const end = performance.now();
+
+        document.getElementById("output").innerHTML =
+            `<b>Binary Search Rekursif</b><br>
+             Index ditemukan: ${index}<br>
+             Waktu eksekusi: ${(end - start).toFixed(4)} ms`;
+    }
+</script>
+
+</body>
+</html>
