@@ -1,140 +1,131 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title>Binary Search Web App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-        }
-        .container {
-            width: 420px;
-            margin: 60px auto;
-            padding: 20px;
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h2 {
-            text-align: center;
-        }
-        label {
-            display: block;
-            margin-top: 12px;
-        }
-        input {
-            width: 100%;
-            padding: 6px;
-            margin-top: 4px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-        .result {
-            margin-top: 15px;
-            padding: 10px;
-            background: #eef2f3;
-            border-radius: 5px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Analisis Binary Search</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+    button {
+      padding: 10px 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    canvas {
+      margin-top: 30px;
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Binary Search Web App</h2>
+<h2>Analisis Running Time Binary Search</h2>
 
-    <label>Ukuran Dataset (n)</label>
-    <input type="number" id="size" value="1000000">
+<p>
+Aplikasi ini membandingkan Binary Search Iteratif dan Rekursif
+berdasarkan waktu eksekusi rata-rata pada dataset besar.
+</p>
 
-    <label>Nilai yang Dicari</label>
-    <input type="number" id="target" value="500000">
+<button onclick="runExperiment()">Jalankan Pengujian</button>
 
-    <button onclick="runIterative()">Jalankan Binary Search Iteratif</button>
-    <button onclick="runRecursive()">Jalankan Binary Search Rekursif</button>
-
-    <div class="result" id="output"></div>
-</div>
+<canvas id="chart"></canvas>
 
 <script>
-    function generateArray(n) {
-        let arr = [];
-        for (let i = 1; i <= n; i++) {
-            arr.push(i);
+function binarySearchIterative(arr, target) {
+  let left = 0, right = arr.length - 1;
+  while (left <= right) {
+    let mid = Math.floor((left + right) / 2);
+    if (arr[mid] === target) return mid;
+    if (arr[mid] < target) left = mid + 1;
+    else right = mid - 1;
+  }
+  return -1;
+}
+
+function binarySearchRecursive(arr, target, left, right) {
+  if (left > right) return -1;
+  let mid = Math.floor((left + right) / 2);
+  if (arr[mid] === target) return mid;
+  if (arr[mid] < target)
+    return binarySearchRecursive(arr, target, mid + 1, right);
+  return binarySearchRecursive(arr, target, left, mid - 1);
+}
+
+function measureTime(fn, arr, target, repeat = 10000) {
+  let start = performance.now();
+  for (let i = 0; i < repeat; i++) {
+    fn(arr, target);
+  }
+  let end = performance.now();
+  return (end - start) / repeat;
+}
+
+function runExperiment() {
+  const sizes = [1000, 10000, 100000, 1000000];
+  const iterativeTimes = [];
+  const recursiveTimes = [];
+
+  sizes.forEach(n => {
+    const data = Array.from({ length: n }, (_, i) => i);
+    const target = Math.floor(n / 2);
+
+    iterativeTimes.push(
+      measureTime(binarySearchIterative, data, target)
+    );
+
+    recursiveTimes.push(
+      measureTime(
+        (arr, t) => binarySearchRecursive(arr, t, 0, arr.length - 1),
+        data,
+        target
+      )
+    );
+  });
+
+  drawChart(sizes, iterativeTimes, recursiveTimes);
+}
+
+function drawChart(labels, iterative, recursive) {
+  const ctx = document.getElementById('chart');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Binary Search Iteratif',
+          data: iterative,
+          borderWidth: 2
+        },
+        {
+          label: 'Binary Search Rekursif',
+          data: recursive,
+          borderWidth: 2
         }
-        return arr;
-    }
-
-    function binarySearchIterative(arr, target) {
-        let left = 0;
-        let right = arr.length - 1;
-
-        while (left <= right) {
-            let mid = Math.floor((left + right) / 2);
-            if (arr[mid] === target) return mid;
-            else if (arr[mid] < target) left = mid + 1;
-            else right = mid - 1;
+      ]
+    },
+    options: {
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Ukuran Dataset (n)'
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Waktu Eksekusi Rata-rata (ms)'
+          }
         }
-        return -1;
+      }
     }
-
-    function binarySearchRecursive(arr, target, left, right) {
-        if (left > right) return -1;
-
-        let mid = Math.floor((left + right) / 2);
-        if (arr[mid] === target) return mid;
-        else if (arr[mid] < target)
-            return binarySearchRecursive(arr, target, mid + 1, right);
-        else
-            return binarySearchRecursive(arr, target, left, mid - 1);
-    }
-
-    function runIterative() {
-        const n = parseInt(document.getElementById("size").value);
-        const target = parseInt(document.getElementById("target").value);
-        const arr = generateArray(n);
-
-        const repeat = 10000;
-        let index;
-
-        const start = performance.now();
-        for (let i = 0; i < repeat; i++) {
-            index = binarySearchIterative(arr, target);
-        }
-        const end = performance.now();
-
-        const avgTime = (end - start) / repeat;
-
-        document.getElementById("output").innerHTML =
-            `<b>Binary Search Iteratif</b><br>
-             Index ditemukan: ${index}<br>
-             Waktu eksekusi rata-rata: ${avgTime.toFixed(6)} ms`;
-    }
-
-    function runRecursive() {
-        const n = parseInt(document.getElementById("size").value);
-        const target = parseInt(document.getElementById("target").value);
-        const arr = generateArray(n);
-
-        const repeat = 10000;
-        let index;
-
-        const start = performance.now();
-        for (let i = 0; i < repeat; i++) {
-            index = binarySearchRecursive(arr, target, 0, arr.length - 1);
-        }
-        const end = performance.now();
-
-        const avgTime = (end - start) / repeat;
-
-        document.getElementById("output").innerHTML =
-            `<b>Binary Search Rekursif</b><br>
-             Index ditemukan: ${index}<br>
-             Waktu eksekusi rata-rata: ${avgTime.toFixed(6)} ms`;
-    }
+  });
+}
 </script>
 
 </body>
