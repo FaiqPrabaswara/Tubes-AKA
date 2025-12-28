@@ -1,130 +1,140 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Analisis Binary Search</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 900px;
-      margin: auto;
-      padding: 20px;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: center;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    canvas {
-      margin-top: 40px;
-    }
-    .analysis {
-      margin-top: 40px;
-      background: #f7f9fb;
-      padding: 20px;
-      border-radius: 8px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Binary Search Web App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+        .container {
+            width: 420px;
+            margin: 60px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-top: 12px;
+        }
+        input {
+            width: 100%;
+            padding: 6px;
+            margin-top: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            background: #eef2f3;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
 
-<h2>Analisis Running Time Binary Search</h2>
+<div class="container">
+    <h2>Binary Search Web App</h2>
 
-<p>
-Pengujian dilakukan untuk membandingkan Binary Search Iteratif dan Rekursif
-berdasarkan waktu eksekusi rata-rata pada dataset terurut dengan ukuran berbeda.
-</p>
+    <label>Ukuran Dataset (n)</label>
+    <input type="number" id="size" value="1000000">
 
-<h3>📊 Tabel Hasil Pengujian</h3>
+    <label>Nilai yang Dicari</label>
+    <input type="number" id="target" value="500000">
 
-<table>
-  <thead>
-    <tr>
-      <th>Ukuran Dataset (n)</th>
-      <th>Binary Search Iteratif (ms)</th>
-      <th>Binary Search Rekursif (ms)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr><td>1.000</td><td>0.0021</td><td>0.0030</td></tr>
-    <tr><td>10.000</td><td>0.0034</td><td>0.0052</td></tr>
-    <tr><td>100.000</td><td>0.0046</td><td>0.0075</td></tr>
-    <tr><td>1.000.000</td><td>0.0068</td><td>0.0109</td></tr>
-  </tbody>
-</table>
+    <button onclick="runIterative()">Jalankan Binary Search Iteratif</button>
+    <button onclick="runRecursive()">Jalankan Binary Search Rekursif</button>
 
-<h3>📈 Grafik Perbandingan Running Time</h3>
-
-<canvas id="chart"></canvas>
-
-<div class="analysis">
-  <h3>🧠 Analisis Perbedaan Algoritma</h3>
-  <p>
-    Berdasarkan grafik di atas, dapat dilihat bahwa waktu eksekusi kedua algoritma
-    meningkat seiring bertambahnya ukuran dataset. Namun, peningkatan waktu
-    berlangsung sangat lambat, yang menunjukkan bahwa kedua algoritma memiliki
-    kompleksitas waktu <b>O(log n)</b>.
-  </p>
-  <p>
-    Binary Search Iteratif secara konsisten memiliki waktu eksekusi yang lebih rendah
-    dibandingkan Binary Search Rekursif. Hal ini disebabkan oleh tidak adanya overhead
-    pemanggilan fungsi pada versi iteratif, sedangkan versi rekursif memerlukan alokasi
-    stack untuk setiap pemanggilan fungsi.
-  </p>
-  <p>
-    Dengan demikian, meskipun kedua algoritma memiliki kompleksitas asimtotik yang sama,
-    implementasi iteratif lebih efisien secara praktis dibandingkan implementasi rekursif.
-  </p>
+    <div class="result" id="output"></div>
 </div>
 
 <script>
-const labels = [1000, 10000, 100000, 1000000];
-const iterativeData = [0.0021, 0.0034, 0.0046, 0.0068];
-const recursiveData = [0.0030, 0.0052, 0.0075, 0.0109];
-
-new Chart(document.getElementById('chart'), {
-  type: 'line',
-  data: {
-    labels: labels,
-    datasets: [
-      {
-        label: 'Binary Search Iteratif',
-        data: iterativeData,
-        borderWidth: 2
-      },
-      {
-        label: 'Binary Search Rekursif',
-        data: recursiveData,
-        borderWidth: 2
-      }
-    ]
-  },
-  options: {
-    scales: {
-      x: {
-        title: {
-          display: true,
-          text: 'Ukuran Dataset (n)'
+    function generateArray(n) {
+        let arr = [];
+        for (let i = 1; i <= n; i++) {
+            arr.push(i);
         }
-      },
-      y: {
-        title: {
-          display: true,
-          text: 'Waktu Eksekusi Rata-rata (ms)'
-        }
-      }
+        return arr;
     }
-  }
-});
+
+    function binarySearchIterative(arr, target) {
+        let left = 0;
+        let right = arr.length - 1;
+
+        while (left <= right) {
+            let mid = Math.floor((left + right) / 2);
+            if (arr[mid] === target) return mid;
+            else if (arr[mid] < target) left = mid + 1;
+            else right = mid - 1;
+        }
+        return -1;
+    }
+
+    function binarySearchRecursive(arr, target, left, right) {
+        if (left > right) return -1;
+
+        let mid = Math.floor((left + right) / 2);
+        if (arr[mid] === target) return mid;
+        else if (arr[mid] < target)
+            return binarySearchRecursive(arr, target, mid + 1, right);
+        else
+            return binarySearchRecursive(arr, target, left, mid - 1);
+    }
+
+    function runIterative() {
+        const n = parseInt(document.getElementById("size").value);
+        const target = parseInt(document.getElementById("target").value);
+        const arr = generateArray(n);
+
+        const repeat = 10000;
+        let index;
+
+        const start = performance.now();
+        for (let i = 0; i < repeat; i++) {
+            index = binarySearchIterative(arr, target);
+        }
+        const end = performance.now();
+
+        const avgTime = (end - start) / repeat;
+
+        document.getElementById("output").innerHTML =
+            `<b>Binary Search Iteratif</b><br>
+             Index ditemukan: ${index}<br>
+             Waktu eksekusi rata-rata: ${avgTime.toFixed(6)} ms`;
+    }
+
+    function runRecursive() {
+        const n = parseInt(document.getElementById("size").value);
+        const target = parseInt(document.getElementById("target").value);
+        const arr = generateArray(n);
+
+        const repeat = 10000;
+        let index;
+
+        const start = performance.now();
+        for (let i = 0; i < repeat; i++) {
+            index = binarySearchRecursive(arr, target, 0, arr.length - 1);
+        }
+        const end = performance.now();
+
+        const avgTime = (end - start) / repeat;
+
+        document.getElementById("output").innerHTML =
+            `<b>Binary Search Rekursif</b><br>
+             Index ditemukan: ${index}<br>
+             Waktu eksekusi rata-rata: ${avgTime.toFixed(6)} ms`;
+    }
 </script>
 
 </body>
